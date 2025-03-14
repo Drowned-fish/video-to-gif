@@ -2,7 +2,7 @@
 
 一个简单的 VS Code 扩展，用于将视频文件转换为 GIF 动图。
 
-![](https://raw.githubusercontent.com/username/video-to-gif/main/images/preview.gif)
+![src](https://raw.githubusercontent.com/Drowned-fish/video-to-gif/refs/heads/main/assets/readme.gif)
 
 ## 功能特点
 
