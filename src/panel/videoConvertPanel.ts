@@ -26,11 +26,7 @@ export class VideoConvertPanel {
 
     this.selectedFilePath = state.selectedFile;
 
-    this._panel.webview.html = getWebviewContent(
-      this._panel.webview,
-      extensionUri,
-      state
-    );
+    this._panel.webview.html = getWebviewContent(extensionUri, state);
 
     this._setWebviewMessageListener(this._panel.webview);
 
@@ -88,7 +84,7 @@ export class VideoConvertPanel {
               // 通知 webview 文件已选择
               webview.postMessage({
                 type: "fileSelected",
-                fileName: fileUri[0].path.split("/").pop(),
+                fileName: path.basename(fileUri[0].fsPath),
               });
             }
             return;
@@ -102,9 +98,13 @@ export class VideoConvertPanel {
             try {
               // 检查输出文件是否已存在
               const dir = path.dirname(this.selectedFilePath);
+              const baseName = path.basename(
+                this.selectedFilePath,
+                path.extname(this.selectedFilePath)
+              );
               const outputPath = message.outputName
                 ? path.join(dir, `${message.outputName}.gif`)
-                : this.selectedFilePath.replace(/\.[^/.]+$/, "") + ".gif";
+                : path.join(dir, `${baseName}.gif`);
 
               if (fs.existsSync(outputPath)) {
                 const answer = await vscode.window.showWarningMessage(

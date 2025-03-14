@@ -1,4 +1,3 @@
-const ffmpeg = require("fluent-ffmpeg");
 import * as path from "node:path";
 
 interface ConvertOptions {
@@ -13,10 +12,13 @@ export async function convertVideoToGif(
   options: ConvertOptions
 ): Promise<string> {
   const dir = path.dirname(videoPath);
+  const baseName = path.basename(videoPath, path.extname(videoPath));
+
   const outputPath = options.outputName
     ? path.join(dir, `${options.outputName}.gif`)
-    : videoPath.replace(/\.[^/.]+$/, "") + ".gif";
+    : path.join(dir, `${baseName}.gif`);
 
+  const ffmpeg = require("fluent-ffmpeg");
   return new Promise((resolve, reject) => {
     ffmpeg(videoPath)
       .fps(options.fps)
