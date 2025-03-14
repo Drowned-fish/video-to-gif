@@ -9,7 +9,7 @@ export function getWebviewContent(
 ) {
   const templatePath = vscode.Uri.joinPath(
     extensionUri,
-    "src",
+    "dist",
     "template.html"
   );
   let template = fs.readFileSync(templatePath.fsPath, "utf8");
