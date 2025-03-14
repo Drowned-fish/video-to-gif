@@ -1,0 +1,76 @@
+{
+  "name": "video-to-gif",
+  "displayName": "Video to GIF Converter",
+  "description": "一个简单的视频转GIF VSCode插件，支持自定义帧率、尺寸和质量",
+  "version": "1.0.1",
+  "publisher": "zhuangyizhen",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Drowned-fish/video-to-gif"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "video",
+    "gif",
+    "converter",
+    "ffmpeg"
+  ],
+  "activationEvents": [
+    "onCommand:videoToGif.convert"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "videoToGif.convert",
+        "title": "视频转GIF",
+        "icon": "$(symbol-misc)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "videoToGif.convert",
+          "when": "true",
+          "group": "navigation@1"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.19.0",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "@types/fluent-ffmpeg": "^2.1.27",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}

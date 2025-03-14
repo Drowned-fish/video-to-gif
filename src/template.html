@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--vscode-foreground);
+        }
+
+        input {
+            width: 200px;
+            padding: 6px 8px;
+            border: 1px solid var(--vscode-input-border);
+            background: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border-radius: 4px;
+        }
+
+        input:focus {
+            outline: 1px solid var(--vscode-focusBorder);
+        }
+
+        button {
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        button:hover {
+            background: var(--vscode-button-hoverBackground);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #selectedFile {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--vscode-descriptionForeground);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-group">
+        <button onclick="selectFile()">选择视频文件</button>
+        <div id="selectedFile"></div>
+    </div>
+    <div class="form-group">
+        <label>输出文件名：</label>
+        <input type="text" id="outputName" placeholder="不填则使用原文件名">
+    </div>
+    <div class="form-group">
+        <label>帧率 (FPS)：</label>
+        <input type="number" id="fps" value="10" min="1" max="60">
+    </div>
+    <div class="form-group">
+        <label>输出宽度（像素）：</label>
+        <input type="number" id="width" value="800" min="100">
+    </div>
+    <div class="form-group">
+        <label>质量 (1-100)：</label>
+        <input type="number" id="quality" value="80" min="1" max="100">
+    </div>
+    <div class="form-group">
+        <label>输出路径：</label>
+        <div id="outputPath"
+            style="word-break: break-all; font-size: 12px; color: var(--vscode-descriptionForeground);">-</div>
+    </div>
+    <button onclick="convert()" id="convertBtn" disabled>转换</button>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        // 恢复状态
+        window.addEventListener('load', () => {
+            const state = window.initialState || {};
+            console.log('state*******', state);
+            if (state.fps) document.getElementById('fps').value = state.fps;
+            if (state.width) document.getElementById('width').value = state.width;
+            if (state.quality) document.getElementById('quality').value = state.quality;
+            if (state.outputName) document.getElementById('outputName').value = state.outputName;
+            if (state.selectedFile) {
+                document.getElementById('selectedFile').textContent = state.selectedFile;
+                document.getElementById('convertBtn').disabled = false;
+            }
+            if (state.outputPath && state.outputPath !== '-') {
+                const outputPathBtn = document.getElementById('outputPath');
+                outputPathBtn.textContent = state.outputPath;
+                outputPathBtn.style.cursor = 'pointer';
+                outputPathBtn.style.textDecoration = 'underline';
+                outputPathBtn.onclick = () => {
+                    vscode.postMessage({
+                        command: 'openFile',
+                        outputPath: state.outputPath
+                    });
+                };
+            }
+        });
+
+
+        // 保存状态
+        function saveState() {
+            const state = {
+                fps: document.getElementById('fps').value,
+                width: document.getElementById('width').value,
+                quality: document.getElementById('quality').value,
+                outputName: document.getElementById('outputName').value,
+                selectedFile: document.getElementById('selectedFile').textContent,
+                outputPath: document.getElementById('outputPath').textContent
+            };
+            vscode.postMessage({ command: 'saveState', state });
+        }
+
+
+        function selectFile() {
+            vscode.postMessage({
+                command: 'selectFile'
+            });
+        }
+
+        function convert() {
+            const fps = parseInt(document.getElementById('fps').value) || 10;
+            const width = parseInt(document.getElementById('width').value) || 800;
+            const quality = parseInt(document.getElementById('quality').value) || 80;
+            const outputName = document.getElementById('outputName').value.trim();
+
+            vscode.postMessage({
+                command: 'convert',
+                outputName: outputName,
+                options: {
+                    fps,
+                    width,
+                    quality
+                }
+            });
+        }
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.type === 'fileSelected') {
+                document.getElementById('selectedFile').textContent = `已选择: ${message.fileName}`;
+                if (!document.getElementById('outputName').value) {
+                    document.getElementById('outputName').value = message.fileName.replace(/\.[^/.]+$/, '');
+                }
+                document.getElementById('convertBtn').disabled = false;
+                // 清除之前的输出路径
+                const outputPathBtn = document.getElementById('outputPath');
+                outputPathBtn.textContent = '-';
+                outputPathBtn.style.cursor = 'default';
+                outputPathBtn.style.textDecoration = 'none';
+                outputPathBtn.onclick = null;
+            } else if (message.type === 'convertSuccess') {
+                const outputPathBtn = document.getElementById('outputPath');
+                // 移除旧的点击事件
+                outputPathBtn.onclick = null;
+
+                outputPathBtn.textContent = message.outputPath;
+                outputPathBtn.style.cursor = 'pointer';
+                outputPathBtn.style.textDecoration = 'underline';
+                // 每次转化成功都更新缓存
+                saveState();
+                outputPathBtn.onclick = () => {
+                    vscode.postMessage({
+                        command: 'openFile',
+                        outputPath: message.outputPath
+                    });
+                };
+            }
+        });
+    </script>
+</body>
+
+</html>
