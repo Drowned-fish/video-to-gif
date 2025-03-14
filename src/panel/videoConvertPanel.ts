@@ -85,6 +85,10 @@ export class VideoConvertPanel {
               webview.postMessage({
                 type: "fileSelected",
                 fileName: path.basename(fileUri[0].fsPath),
+                fileNameWithoutExt: path.basename(
+                  fileUri[0].fsPath,
+                  path.extname(fileUri[0].fsPath)
+                ),
               });
             }
             return;

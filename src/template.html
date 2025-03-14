@@ -159,9 +159,8 @@
             const message = event.data;
             if (message.type === 'fileSelected') {
                 document.getElementById('selectedFile').textContent = `已选择: ${message.fileName}`;
-                if (!document.getElementById('outputName').value) {
-                    document.getElementById('outputName').value = message.fileName.replace(/\.[^/.]+$/, '');
-                }
+                document.getElementById('outputName').value = message.fileNameWithoutExt;
+
                 document.getElementById('convertBtn').disabled = false;
                 // 清除之前的输出路径
                 const outputPathBtn = document.getElementById('outputPath');
