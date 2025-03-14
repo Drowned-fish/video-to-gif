@@ -2,7 +2,7 @@
   "name": "video-to-gif",
   "displayName": "Video to GIF Converter",
   "description": "一个简单的视频转GIF VSCode插件，支持自定义帧率、尺寸和质量",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "zhuangyizhen",
   "license": "MIT",
   "icon": "assets/icon.png",
